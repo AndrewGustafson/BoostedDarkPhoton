@@ -120,6 +120,24 @@ def RefIndex(element, density, energy):
     nrefre = 1 - r0/(2 *pi) * (hc/energy)**2 * num_dens * f1val
     nrefim = -r0/(2 *pi) * (hc/energy)**2 * num_dens * f2val
     
+    if element == "Helium" and energy > 0.004:
+        filename = "HeliumIndexRefraction1kgm3.csv"
+        EnergyArray = np.array([])
+        deltaArray = np.array([])
+        betaArray = np.array([])
+        
+        file = open(filename)
+        for line in file:
+            line = line.split(',')
+            EnergyArray = np.append(EnergyArray,float(line[0])*1e-6)
+            deltaArray = np.append(deltaArray, float(line[1]))
+            betaArray = np.append(betaArray, float(line[2]))
+            
+        file.close()
+        
+        nrefre = 1 - (density*1e3)*np.interp(energy, EnergyArray, deltaArray)
+        nrefim = -1* (density*1e3)* np.interp(energy, EnergyArray, betaArray)
+    
     return(nrefre, nrefim)
 
 def PiT(element,density,energy):
@@ -163,15 +181,3 @@ def Eps2Scaling(element,density,energy,mA):
     
     Scale = mA**4 / ((mA**2 - PiTre)**2 + PiTim**2)
     return(Scale)
-
-'''
-mA_vals = np.logspace(-7,-4,30)
-scaling_vals = Eps2Scaling("Xenon",0.005,0.001,mA_vals)
-
-fig = plt.figure()
-plt.plot(mA_vals, scaling_vals)
-
-plt.yscale('log')
-plt.xscale('log')
-'''
-    
